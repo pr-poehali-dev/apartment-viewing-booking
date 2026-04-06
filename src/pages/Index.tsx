@@ -6,7 +6,21 @@ const API_URL = "https://functions.poehali.dev/5a08dbc2-9473-421c-81e1-b8ea69be7
 
 const MONTHS = ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"];
 const WEEK_DAYS = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
-const TIME_SLOTS = ["10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"];
+const SLOTS_BY_WEEKDAY: Record<number, string[]> = {
+  4: ["14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30","20:00","20:30","21:00"],
+  6: ["10:30","11:30","12:30"],
+};
+
+function getSlotsForDate(dateStr: string): string[] {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const wd = new Date(y, m - 1, d).getDay();
+  return SLOTS_BY_WEEKDAY[wd] || [];
+}
+
+function isAllowedDay(year: number, month: number, day: number): boolean {
+  const wd = new Date(year, month, day).getDay();
+  return wd === 4 || wd === 6;
+}
 
 function getDaysInMonth(year: number, month: number) {
   return new Date(year, month + 1, 0).getDate();
@@ -63,13 +77,14 @@ export default function Index() {
 
   const handleDayClick = (day: number) => {
     const date = formatDate(calYear, calMonth, day);
-    if (isDatePast(calYear, calMonth, day)) return;
+    if (isDatePast(calYear, calMonth, day) || !isAllowedDay(calYear, calMonth, day)) return;
     setSelectedDate(date);
     setSelectedTime(null);
   };
 
-  const availableSlots = TIME_SLOTS.filter(t => !bookedSlots.includes(t));
-  const isDateFullyBooked = bookedSlots.length === TIME_SLOTS.length;
+  const slotsForDate = selectedDate ? getSlotsForDate(selectedDate) : [];
+  const availableSlots = slotsForDate.filter(t => !bookedSlots.includes(t));
+  const isDateFullyBooked = slotsForDate.length > 0 && bookedSlots.length >= slotsForDate.length;
   const canProceed = selectedDate && selectedTime;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -185,7 +200,8 @@ export default function Index() {
                     const day = i + 1;
                     const dateStr = formatDate(calYear, calMonth, day);
                     const past = isDatePast(calYear, calMonth, day);
-                    const fullyBooked = dateStr === selectedDate && isDateFullyBooked;
+                    const allowed = isAllowedDay(calYear, calMonth, day);
+                    const disabled = past || !allowed;
                     const selected = selectedDate === dateStr;
                     const isToday = dateStr === formatDate(today.getFullYear(), today.getMonth(), today.getDate());
 
@@ -193,13 +209,12 @@ export default function Index() {
                       <button
                         key={day}
                         onClick={() => handleDayClick(day)}
-                        disabled={past || fullyBooked}
+                        disabled={disabled}
                         className={[
                           "relative aspect-square rounded-xl text-sm font-medium transition-all duration-200",
                           selected ? "bg-coral-500 text-white shadow-lg shadow-coral-500/30 scale-110" : "",
-                          !selected && !past && !fullyBooked ? "hover:bg-coral-500/20 hover:text-coral-300 cursor-pointer" : "",
-                          past ? "text-white/20 cursor-default" : "",
-                          fullyBooked && !past ? "text-white/25 cursor-default line-through" : "",
+                          !selected && !disabled ? "hover:bg-coral-500/20 hover:text-coral-300 cursor-pointer" : "",
+                          disabled ? "text-white/15 cursor-default" : "",
                           isToday && !selected ? "ring-1 ring-coral-500/60" : "",
                         ].join(" ")}
                       >
@@ -210,8 +225,7 @@ export default function Index() {
                 </div>
 
                 <div className="flex items-center gap-4 mt-4 pt-4 border-t border-white/10 text-xs text-white/40">
-                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-coral-400" /> Частично занято</span>
-                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-white/20" /> Полностью занято</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-coral-500" /> Доступные дни: Чт и Сб</span>
                 </div>
               </div>
             </div>
@@ -235,7 +249,7 @@ export default function Index() {
                     {formatDisplayDate(selectedDate)}
                   </p>
                   <div className="grid grid-cols-2 gap-2">
-                    {TIME_SLOTS.map(slot => {
+                    {slotsForDate.map(slot => {
                       const busy = bookedSlots.includes(slot);
                       const sel = selectedTime === slot;
                       return (
@@ -255,7 +269,7 @@ export default function Index() {
                       );
                     })}
                   </div>
-                  <p className="text-white/30 text-xs mt-4">Доступно {availableSlots.length} из {TIME_SLOTS.length} слотов</p>
+                  <p className="text-white/30 text-xs mt-4">Доступно {availableSlots.length} из {slotsForDate.length} слотов</p>
                 </div>
               )}
 
