@@ -1,18 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Icon from "@/components/ui/icon";
 
 const APARTMENT_IMAGE = "https://cdn.poehali.dev/projects/5c9ea8b3-61dc-4ef7-9f61-5e9eefeae578/bucket/746f13f6-9d6b-4af0-90a7-dace93c14f74.jpeg";
+const API_URL = "https://functions.poehali.dev/5a08dbc2-9473-421c-81e1-b8ea69be7525";
 
 const MONTHS = ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"];
 const WEEK_DAYS = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
 const TIME_SLOTS = ["10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"];
-
-const BUSY_DATES: Record<string, string[]> = {
-  "2026-04-08": ["11:00","12:00","14:00"],
-  "2026-04-10": ["10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"],
-  "2026-04-14": ["14:00","15:00","16:00"],
-  "2026-04-17": ["10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"],
-};
 
 function getDaysInMonth(year: number, month: number) {
   return new Date(year, month + 1, 0).getDate();
@@ -23,9 +17,6 @@ function getFirstDayOfMonth(year: number, month: number) {
 }
 function formatDate(year: number, month: number, day: number) {
   return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-}
-function isDateFullyBooked(date: string) {
-  return (BUSY_DATES[date] || []).length === TIME_SLOTS.length;
 }
 function isDatePast(year: number, month: number, day: number) {
   const d = new Date(year, month, day);
@@ -44,9 +35,20 @@ export default function Index() {
   const [step, setStep] = useState<"calendar" | "form" | "success">("calendar");
   const [form, setForm] = useState({ name: "", phone: "", comment: "" });
   const [loading, setLoading] = useState(false);
+  const [bookedSlots, setBookedSlots] = useState<string[]>([]);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const daysInMonth = getDaysInMonth(calYear, calMonth);
   const firstDay = getFirstDayOfMonth(calYear, calMonth);
+
+  useEffect(() => {
+    if (!selectedDate) return;
+    setBookedSlots([]);
+    fetch(`${API_URL}?date=${selectedDate}`)
+      .then(r => r.json())
+      .then(data => setBookedSlots(data.booked || []))
+      .catch(() => {});
+  }, [selectedDate]);
 
   const prevMonth = () => {
     if (calMonth === 0) { setCalYear(y => y - 1); setCalMonth(11); }
@@ -61,33 +63,41 @@ export default function Index() {
 
   const handleDayClick = (day: number) => {
     const date = formatDate(calYear, calMonth, day);
-    if (isDatePast(calYear, calMonth, day) || isDateFullyBooked(date)) return;
+    if (isDatePast(calYear, calMonth, day)) return;
     setSelectedDate(date);
     setSelectedTime(null);
   };
 
-  const bookedSlots = selectedDate ? (BUSY_DATES[selectedDate] || []) : [];
   const availableSlots = TIME_SLOTS.filter(t => !bookedSlots.includes(t));
+  const isDateFullyBooked = bookedSlots.length === TIME_SLOTS.length;
   const canProceed = selectedDate && selectedTime;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.phone) return;
     setLoading(true);
-    try {
-      await fetch("https://functions.poehali.dev/3b7cd36c-de27-43de-a63a-5370ad5d7b6a", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name,
-          phone: form.phone,
-          date: selectedDate ? formatDisplayDate(selectedDate) : "",
-          time: selectedTime,
-          comment: form.comment,
-        }),
-      });
-    } catch (_) {}
+    setSubmitError(null);
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: form.name,
+        phone: form.phone,
+        date: selectedDate,
+        display_date: selectedDate ? formatDisplayDate(selectedDate) : "",
+        time: selectedTime,
+        comment: form.comment,
+      }),
+    });
+    const data = await res.json();
     setLoading(false);
+    if (res.status === 409) {
+      setSubmitError(data.error || "Это время уже занято, выберите другое");
+      setBookedSlots(prev => [...prev, selectedTime!]);
+      setSelectedTime(null);
+      setStep("calendar");
+      return;
+    }
     setStep("success");
   };
 
@@ -140,6 +150,12 @@ export default function Index() {
 
         {step === "calendar" && (
           <div className="grid md:grid-cols-2 gap-8 items-start">
+            {submitError && (
+              <div className="md:col-span-2 bg-red-500/10 border border-red-500/30 rounded-2xl px-5 py-4 flex items-center gap-3 text-red-400 text-sm font-medium animate-fade-in">
+                <Icon name="AlertCircle" size={18} className="flex-shrink-0" />
+                {submitError}
+              </div>
+            )}
             {/* Calendar */}
             <div className="animate-fade-in">
               <h2 className="text-2xl font-semibold mb-6 flex items-center gap-3">
@@ -169,9 +185,8 @@ export default function Index() {
                     const day = i + 1;
                     const dateStr = formatDate(calYear, calMonth, day);
                     const past = isDatePast(calYear, calMonth, day);
-                    const fullyBooked = isDateFullyBooked(dateStr);
+                    const fullyBooked = dateStr === selectedDate && isDateFullyBooked;
                     const selected = selectedDate === dateStr;
-                    const partiallyBooked = !fullyBooked && (BUSY_DATES[dateStr]?.length ?? 0) > 0;
                     const isToday = dateStr === formatDate(today.getFullYear(), today.getMonth(), today.getDate());
 
                     return (
@@ -189,9 +204,6 @@ export default function Index() {
                         ].join(" ")}
                       >
                         {day}
-                        {partiallyBooked && !selected && (
-                          <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-coral-400" />
-                        )}
                       </button>
                     );
                   })}
