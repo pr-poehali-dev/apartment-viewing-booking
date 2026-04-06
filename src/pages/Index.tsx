@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Icon from "@/components/ui/icon";
 
-const APARTMENT_IMAGE = "https://cdn.poehali.dev/projects/5c9ea8b3-61dc-4ef7-9f61-5e9eefeae578/files/f54f2fff-3299-426c-b2ff-432485fddbdc.jpg";
+const APARTMENT_IMAGE = "https://cdn.poehali.dev/projects/5c9ea8b3-61dc-4ef7-9f61-5e9eefeae578/files/15a4a7a1-93d0-4979-b39c-197361285e3d.jpg";
 
 const MONTHS = ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"];
 const WEEK_DAYS = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
@@ -99,14 +99,14 @@ export default function Index() {
           <div className="animate-slide-up" style={{ animationDelay: "0.1s" }}>
             <span className="inline-flex items-center gap-2 bg-coral-500 text-white text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-full mb-4">
               <Icon name="MapPin" size={12} />
-              Москва, ул. Садовая, 12
+              ул. Алябьева, д. 2
             </span>
             <h1 className="font-cormorant text-5xl md:text-7xl font-semibold leading-none mb-3">
               Запись на показ<br />
               <span className="italic text-coral-400">квартиры</span>
             </h1>
             <p className="text-white/60 text-lg max-w-md">
-              3-комнатная · 82 м² · 18 этаж · Сданный дом
+              5-этажный дом · 3 этаж · Хрущёвка
             </p>
           </div>
         </div>
@@ -258,8 +258,8 @@ export default function Index() {
                 <Icon name="Home" size={18} className="text-coral-400" />
               </div>
               <div>
-                <p className="font-semibold text-sm">3-комнатная квартира, 82 м²</p>
-                <p className="text-white/50 text-xs mt-0.5">Москва, ул. Садовая, 12 · Этаж 18</p>
+                <p className="font-semibold text-sm">Квартира на ул. Алябьева, д. 2</p>
+                <p className="text-white/50 text-xs mt-0.5">5-этажный дом · Этаж 3 · Хрущёвка</p>
                 <p className="text-coral-400 text-sm font-medium mt-1">{selectedDate && formatDisplayDate(selectedDate)} · {selectedTime}</p>
               </div>
             </div>
