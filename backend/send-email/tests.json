@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Send email test",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "name": "Тест",
+        "phone": "+7 (999) 000-00-00",
+        "date": "7 Апр, Вт",
+        "time": "12:00",
+        "comment": "Тестовая заявка"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {"ok": true},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
