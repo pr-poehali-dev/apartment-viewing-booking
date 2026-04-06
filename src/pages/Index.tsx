@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Icon from "@/components/ui/icon";
 
-const APARTMENT_IMAGE = "https://cdn.poehali.dev/projects/5c9ea8b3-61dc-4ef7-9f61-5e9eefeae578/files/15a4a7a1-93d0-4979-b39c-197361285e3d.jpg";
+const APARTMENT_IMAGE = "https://cdn.poehali.dev/projects/5c9ea8b3-61dc-4ef7-9f61-5e9eefeae578/bucket/1f074474-95a5-42fa-ba00-acf52e5a7b77.jpeg";
 
 const MONTHS = ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"];
 const WEEK_DAYS = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
