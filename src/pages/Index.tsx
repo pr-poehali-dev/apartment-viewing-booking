@@ -111,6 +111,12 @@ export default function Index() {
             <p className="text-3xl font-bold mt-3 text-white">
               20 500 000 <span className="text-coral-400 text-2xl">₽</span>
             </p>
+            <a
+              href="tel:+79165882959"
+              className="inline-flex items-center gap-2 mt-5 bg-white text-[#0f0f0f] font-bold px-6 py-3 rounded-2xl hover:bg-coral-400 hover:text-white transition-all duration-200 shadow-lg text-base"
+            >
+              <Icon name="Phone" size={18} /> Позвонить
+            </a>
           </div>
         </div>
       </div>
