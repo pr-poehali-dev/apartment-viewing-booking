@@ -370,11 +370,11 @@ export default function Index() {
       <footer className="border-t border-white/8 mt-16 py-8 px-6 md:px-16 max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-white/25 text-sm">
         <span>© 2026 Агентство недвижимости</span>
         <div className="flex items-center gap-6">
-          <a href="tel:+74951234567" className="hover:text-white/60 transition-colors flex items-center gap-1.5">
-            <Icon name="Phone" size={13} /> +7 (495) 123-45-67
+          <a href="tel:+79165882959" className="hover:text-white/60 transition-colors flex items-center gap-1.5">
+            <Icon name="Phone" size={13} /> +7 (916) 588-29-59
           </a>
-          <a href="mailto:info@agency.ru" className="hover:text-white/60 transition-colors flex items-center gap-1.5">
-            <Icon name="Mail" size={13} /> info@agency.ru
+          <a href="https://t.me/+79165882959" target="_blank" rel="noopener noreferrer" className="hover:text-white/60 transition-colors flex items-center gap-1.5">
+            <Icon name="Send" size={13} /> Telegram
           </a>
         </div>
       </footer>
