@@ -106,7 +106,10 @@ export default function Index() {
               <span className="italic text-coral-400">квартиры</span>
             </h1>
             <p className="text-white/60 text-lg max-w-md">
-              5-этажный дом · 3 этаж · Хрущёвка
+              2-комнатная · 41 м² · 3 этаж · Хрущёвка
+            </p>
+            <p className="text-3xl font-bold mt-3 text-white">
+              20 500 000 <span className="text-coral-400 text-2xl">₽</span>
             </p>
           </div>
         </div>
@@ -259,7 +262,7 @@ export default function Index() {
               </div>
               <div>
                 <p className="font-semibold text-sm">Квартира на ул. Алябьева, д. 2</p>
-                <p className="text-white/50 text-xs mt-0.5">5-этажный дом · Этаж 3 · Хрущёвка</p>
+                <p className="text-white/50 text-xs mt-0.5">2-комнатная · 41 м² · Этаж 3 · Хрущёвка · 20 500 000 ₽</p>
                 <p className="text-coral-400 text-sm font-medium mt-1">{selectedDate && formatDisplayDate(selectedDate)} · {selectedTime}</p>
               </div>
             </div>
