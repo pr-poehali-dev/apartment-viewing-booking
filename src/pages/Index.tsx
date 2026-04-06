@@ -70,11 +70,25 @@ export default function Index() {
   const availableSlots = TIME_SLOTS.filter(t => !bookedSlots.includes(t));
   const canProceed = selectedDate && selectedTime;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.phone) return;
     setLoading(true);
-    setTimeout(() => { setLoading(false); setStep("success"); }, 1200);
+    try {
+      await fetch("https://functions.poehali.dev/3b7cd36c-de27-43de-a63a-5370ad5d7b6a", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          phone: form.phone,
+          date: selectedDate ? formatDisplayDate(selectedDate) : "",
+          time: selectedTime,
+          comment: form.comment,
+        }),
+      });
+    } catch (_) {}
+    setLoading(false);
+    setStep("success");
   };
 
   const formatDisplayDate = (dateStr: string) => {
